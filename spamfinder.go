@@ -9,12 +9,16 @@ import (
 	"regexp"
 )
 
+// Spammer hold info for a single spamming monster 
 type Spammer struct {
 	From            string
 	UnsubscribeInfo string
 	UnsubscribeURL  string
 	EmailBody       string
 }
+
+const UrlRegex = "[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)" 
+    //"(http|ftp|https):\\/\\/([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#-]*[\\w@?^=%&/~+#-])?"
 
 func getSpammers() *map[string]*Spammer {
 	srv := GetService()
@@ -45,14 +49,14 @@ func getSpammers() *map[string]*Spammer {
 	return &spammers
 }
 
-func exportSpammers(spammers *map[string]*Spammer) {
-	f, err := os.Create("output.csv")
+func exportSpammers(spammers *map[string]*Spammer, outputFilename string) {
+	f, err := os.Create(outputFilename)
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
 	w := csv.NewWriter(f)
-	r, _ := regexp.Compile("(http|ftp|https):\\/\\/([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:/~+#-]*[\\w@?^=%&/~+#-])?")
+	r, _ := regexp.Compile(UrlRegex)
 
 	for k, v := range *spammers {
 		if err := w.Write([]string{k, parseURL(v.UnsubscribeInfo, r)}); err != nil {
@@ -66,7 +70,7 @@ func exportSpammers(spammers *map[string]*Spammer) {
 func parseURL(s string, r *regexp.Regexp) string {
 	match := r.FindString(s)
 	if match == "" {
-		fmt.Printf("Found not match: %s\n", s)
+		fmt.Printf("Found no match: %s\n", s)
 	}
 
 	return match
@@ -74,5 +78,6 @@ func parseURL(s string, r *regexp.Regexp) string {
 
 func main() {
 	spammers := getSpammers()
-	exportSpammers(spammers)
+    outputFilename := "output.csv"
+	exportSpammers(spammers, outputFilename)
 }
