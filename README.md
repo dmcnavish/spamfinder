@@ -6,4 +6,6 @@ Before running, you will need to enable the Gmail API from the Google dev consol
 
 Then, in Windows run:
 
+```go get```
+
 ```go build && spamfinder.exe```
