@@ -90,7 +90,7 @@ func saveToken(file string, token *oauth2.Token) {
 }
 
 // GetService gets an instance of the gmail context used to query gmail.
-// This function requires that a file 'client_secret.json' is present in the current directory. 
+// This function requires that a file 'client_secret.json' is present in the current directory.
 // You can get this file from Google's API console under Gmail API -> credentialss
 func GetService() *gmail.Service {
 	ctx := context.Background()
